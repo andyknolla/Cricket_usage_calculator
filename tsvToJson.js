@@ -1,19 +1,18 @@
-var fs = require("fs");
-
-var usageFileNames = ['July', 'August', 'September'];
-var arrayOfUsageArrays = []; // [ [ {date: 8/5/2018, usage: 12 MB}, {} ], [SeptUsage],  ]
+const fs = require("fs");
+const usageFileNames = ['July', 'August', 'September'];
+const arrayOfUsageArrays = []; // [ [ {date: 8/5/2018, usage: 12 MB}, {} ], [SeptUsage],  ]
 
 function transform(err, data) {
+  // console.log('data: ', data);
     var rows = data.split("\n");
     var collection = [];
     var keys = [];
-    var test = 'test';
 
-    rows.forEach((val, index)=>{
-        if(index < 1){// get the keys from the first row in the tab space file
-            keys = val.split("\t");
-        }else {// put the values from the following rows into object literals
-            values = val.split("\t");
+    rows.forEach((value, index)=>{
+        if (index < 1) {// get the keys from the first row in the tab space file
+            keys = value.split("\t");
+        } else {// put the values from the following rows into object literals
+            values = value.split("\t");
             collection[index-1] = values.map((value, index) => {
                 return {
                     [keys[index]]: value
@@ -26,13 +25,14 @@ function transform(err, data) {
             });
         }
     })
+
 		const cleanedUpObjects = collection.filter( item => {
 		  return item.usage !== ""
 		}).map( item => {
 		  return item.usage ? { date: item.date, usage: item.usage.replace(" MB", "")} : {};
-		});
+    });
+    // console.log('cleanedUpObjects: ', cleanedUpObjects);
 		arrayOfUsageArrays.push(cleanedUpObjects);
-		console.log('arrayOfUsageArrays.length at end of transform ', arrayOfUsageArrays.length);
 
 		// buildArrayOfUsageObjects(cleanedUpObjects);	??
 
@@ -47,11 +47,8 @@ function transform(err, data) {
 function collectUsageArrays(arrOfMonths, callback) {
 	arrOfMonths.forEach( month => {
 		const filename = `./${month}Usage.txt`;
-		console.log('filename: ', filename);
-		fs.readFile(filename, "utf8", transform)
-		console.log('arrayOfUsageArrays after transform ', arrayOfUsageArrays);
+		fs.readFile(filename, "utf8", transform);
 	});
-	console.log('after reading: ', arrayOfUsageArrays);
 	return arrayOfUsageArrays;
 };
 
@@ -60,12 +57,10 @@ function addDataValues(arrOfObj) {
     const usageNumber = obj.usage ? Number(obj.usage) : 0;
     return accumulator + usageNumber;
   }, 0)
-  console.log('total usage: ', total + ' MB');
 	return total
 };
 
 function usageReport(arrOfArrays) {
-	console.log('usage report ', arrOfArrays);
 	// output a report for data usage over all months with data
 	arrOfArrays.forEach( array => {
 		const total = addDataValues(array);
@@ -74,8 +69,8 @@ function usageReport(arrOfArrays) {
 	});
 };
 
-// console.log('arrayOfUsageArrays ', arrayOfUsageArrays);
 collectUsageArrays(usageFileNames, usageReport);
 
-// console.log('arrayOfUsageArrays ', arrayOfUsageArrays);
-usageReport(arrayOfUsageArrays);
+setTimeout(function() {
+  usageReport(arrayOfUsageArrays)
+}, 500);
