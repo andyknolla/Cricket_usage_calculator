@@ -1,17 +1,19 @@
 var fs = require("fs");
-const usageFileNames = ['July', 'August', 'September'];
-const arrayOfUsageArrays = []; // [ [ {date: 8/5/2018, usage: 12 MB}, {} ], [SeptUsage],  ]
+
+var usageFileNames = ['July', 'August', 'September'];
+var arrayOfUsageArrays = []; // [ [ {date: 8/5/2018, usage: 12 MB}, {} ], [SeptUsage],  ]
 
 function transform(err, data) {
     var rows = data.split("\n");
     var collection = [];
     var keys = [];
+    var test = 'test';
 
-    rows.forEach((value, index)=>{
+    rows.forEach((val, index)=>{
         if(index < 1){// get the keys from the first row in the tab space file
-            keys = value.split("\t");
+            keys = val.split("\t");
         }else {// put the values from the following rows into object literals
-            values = value.split("\t");
+            values = val.split("\t");
             collection[index-1] = values.map((value, index) => {
                 return {
                     [keys[index]]: value
